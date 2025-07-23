@@ -1,35 +1,645 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Leaderboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard | FitTrack</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --white: #ffffff;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
+            --success: #4cc9f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-title i {
+            color: var(--gold);
+        }
+
+        .view-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: var(--light);
+            color: var(--gray);
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .view-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .leaderboard-container {
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .leaderboard-header {
+            display: grid;
+            grid-template-columns: 80px 1fr repeat(4, 150px) 200px;
+            padding: 1rem 1.5rem;
+            background: var(--primary);
+            color: var(--white);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        .leaderboard-row {
+            display: grid;
+            grid-template-columns: 80px 1fr repeat(4, 150px) 200px;
+            padding: 1rem 1.5rem;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+            animation-fill-mode: backwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .leaderboard-row:hover {
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        .leaderboard-row.you {
+            background: rgba(76, 201, 240, 0.1);
+            position: relative;
+        }
+
+        .leaderboard-row.you::before {
+            content: 'YOU';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--success);
+            color: var(--white);
+            padding: 2px 8px;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .rank {
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rank-1 .rank-value {
+            background: var(--gold);
+            color: var(--dark);
+        }
+
+        .rank-2 .rank-value {
+            background: var(--silver);
+            color: var(--dark);
+        }
+
+        .rank-3 .rank-value {
+            background: var(--bronze);
+            color: var(--white);
+        }
+
+        .rank-value {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .username {
+            font-weight: 500;
+        }
+
+        .badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: var(--light);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .badge i {
+            color: var(--primary);
+            font-size: 0.8rem;
+        }
+
+        .stats {
+            font-weight: 500;
+        }
+
+        .stats-label {
+            font-size: 0.7rem;
+            color: var(--gray);
+            margin-top: 2px;
+        }
+
+        .podium {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 2rem;
+        }
+
+        .podium-item {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: var(--white);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .podium-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .podium-1 {
+            order: 2;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
+            border-top: 4px solid var(--gold);
+        }
+
+        .podium-2 {
+            order: 1;
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.1), rgba(192, 192, 192, 0.05));
+            border-top: 4px solid var(--silver);
+        }
+
+        .podium-3 {
+            order: 3;
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.1), rgba(205, 127, 50, 0.05));
+            border-top: 4px solid var(--bronze);
+        }
+
+        .podium-rank {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .podium-1 .podium-rank {
+            color: var(--gold);
+        }
+
+        .podium-2 .podium-rank {
+            color: var(--silver);
+        }
+
+        .podium-3 .podium-rank {
+            color: var(--bronze);
+        }
+
+        .podium-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            border: 3px solid;
+            object-fit: cover;
+        }
+
+        .podium-1 .podium-avatar {
+            border-color: var(--gold);
+        }
+
+        .podium-2 .podium-avatar {
+            border-color: var(--silver);
+        }
+
+        .podium-3 .podium-avatar {
+            border-color: var(--bronze);
+        }
+
+        .podium-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .podium-stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .podium-stat {
+            text-align: center;
+        }
+
+        .podium-stat-value {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .podium-stat-label {
+            font-size: 0.7rem;
+            color: var(--gray);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: var(--white);
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .back-btn i {
+            margin-right: 8px;
+        }
+
+        .filter-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            background: var(--white);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: var(--white);
+            cursor: pointer;
+        }
+
+        @media (max-width: 1024px) {
+            .podium {
+                grid-template-columns: 1fr;
+            }
+
+            .leaderboard-header, .leaderboard-row {
+                grid-template-columns: 60px 1fr repeat(2, 100px) 150px;
+            }
+
+            .leaderboard-header div:nth-child(4),
+            .leaderboard-header div:nth-child(5),
+            .leaderboard-row div:nth-child(4),
+            .leaderboard-row div:nth-child(5) {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                padding: 1rem;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .filter-container {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .filter-options {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .filter-select {
+                flex-grow: 1;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>Leaderboard</h2>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>Username</th>
-                <th>Total Reps</th>
-                <th>Total Time (s)</th>
-                <th>Total Sessions</th>
-                <th>Badges</th>
-            </tr>
-        </thead>
-        <tbody>
+    <div class="dashboard">
+        <div class="header">
+            <h1 class="page-title"><i class="fas fa-trophy"></i> Leaderboard</h1>
+            <div class="view-options">
+                <button class="view-btn active">All Time</button>
+                <button class="view-btn">This Month</button>
+                <button class="view-btn">This Week</button>
+            </div>
+        </div>
+
+        {% if leaderboard|length >= 3 %}
+        <div class="podium">
+            <div class="podium-item podium-1">
+                <div class="podium-rank">1</div>
+                <div class="podium-avatar">{{ leaderboard[0].username|first|upper }}</div>
+                <div class="podium-name">{{ leaderboard[0].username }}</div>
+                <div class="podium-stats">
+                    <div class="podium-stat">
+                        <div class="podium-stat-value">{{ leaderboard[0].total_reps }}</div>
+                        <div class="podium-stat-label">Reps</div>
+                    </div>
+                    <div class="podium-stat">
+                        <div class="podium-stat-value">{{ leaderboard[0].total_sessions }}</div>
+                        <div class="podium-stat-label">Sessions</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="podium-item podium-2">
+                <div class="podium-rank">2</div>
+                <div class="podium-avatar">{{ leaderboard[1].username|first|upper }}</div>
+                <div class="podium-name">{{ leaderboard[1].username }}</div>
+                <div class="podium-stats">
+                    <div class="podium-stat">
+                        <div class="podium-stat-value">{{ leaderboard[1].total_reps }}</div>
+                        <div class="podium-stat-label">Reps</div>
+                    </div>
+                    <div class="podium-stat">
+                        <div class="podium-stat-value">{{ leaderboard[1].total_sessions }}</div>
+                        <div class="podium-stat-label">Sessions</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="podium-item podium-3">
+                <div class="podium-rank">3</div>
+                <div class="podium-avatar">{{ leaderboard[2].username|first|upper }}</div>
+                <div class="podium-name">{{ leaderboard[2].username }}</div>
+                <div class="podium-stats">
+                    <div class="podium-stat">
+                        <div class="podium-stat-value">{{ leaderboard[2].total_reps }}</div>
+                        <div class="podium-stat-label">Reps</div>
+                    </div>
+                    <div class="podium-stat">
+                        <div class="podium-stat-value">{{ leaderboard[2].total_sessions }}</div>
+                        <div class="podium-stat-label">Sessions</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="filter-container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search users...">
+            </div>
+            <div class="filter-options">
+                <select class="filter-select">
+                    <option>All Exercises</option>
+                    <option>Pushups</option>
+                    <option>Squats</option>
+                    <option>Lunges</option>
+                    <option>Plank</option>
+                </select>
+                <select class="filter-select">
+                    <option>Sort by Reps</option>
+                    <option>Sort by Sessions</option>
+                    <option>Sort by Time</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="leaderboard-container">
+            <div class="leaderboard-header">
+                <div>Rank</div>
+                <div>User</div>
+                <div>Total Reps</div>
+                <div>Total Time</div>
+                <div>Sessions</div>
+                <div>Badges</div>
+            </div>
+
             {% for user in leaderboard %}
-                <tr>
-                    <td>{{ loop.index }}</td>
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.total_reps }}</td>
-                    <td>{{ user.total_time }}</td>
-                    <td>{{ user.total_sessions }}</td>
-                    <td>{{ user.badges }}</td>
-                </tr>
+            <div class="leaderboard-row {% if user.username == current_user.username %}you{% endif %}
+                rank-{{ loop.index if loop.index <= 3 else '' }}">
+                <div class="rank">
+                    <div class="rank-value">{{ loop.index }}</div>
+                    {% if loop.index == 1 %}
+                    <i class="fas fa-crown" style="color: var(--gold);"></i>
+                    {% elif loop.index == 2 %}
+                    <i class="fas fa-medal" style="color: var(--silver);"></i>
+                    {% elif loop.index == 3 %}
+                    <i class="fas fa-medal" style="color: var(--bronze);"></i>
+                    {% endif %}
+                </div>
+                <div class="user-info">
+                    <div class="avatar">{{ user.username|first|upper }}</div>
+                    <div class="username">{{ user.username }}</div>
+                </div>
+                <div class="stats">
+                    {{ user.total_reps }}
+                    <div class="stats-label">reps</div>
+                </div>
+                <div class="stats">
+                    {{ user.total_time }}
+                    <div class="stats-label">seconds</div>
+                </div>
+                <div class="stats">
+                    {{ user.total_sessions }}
+                    <div class="stats-label">sessions</div>
+                </div>
+                <div class="badges">
+                    {% if user.badges %}
+                        {% for badge in user.badges %}
+                            <div class="badge">
+                                <i class="fas fa-award"></i>
+                                {{ badge }}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="badge">
+                            <i class="fas fa-star"></i>
+                            Newbie
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
             {% endfor %}
-        </tbody>
-    </table>
-    <a href="{{ url_for('profile') }}">Back to Profile</a>
+        </div>
+
+        <a href="{{ url_for('profile') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Profile
+        </a>
+    </div>
+
+    <script>
+        // Add animation delays for leaderboard rows
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('.leaderboard-row');
+            rows.forEach((row, index) => {
+                row.style.animationDelay = `${index * 0.05}s`;
+            });
+
+            // View option buttons
+            const viewBtns = document.querySelectorAll('.view-btn');
+            viewBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    viewBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    // Here you would typically fetch new data based on the selected view
+                });
+            });
+
+            // Search functionality
+            const searchInput = document.querySelector('.search-box input');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('.leaderboard-row');
+
+                rows.forEach(row => {
+                    const username = row.querySelector('.username').textContent.toLowerCase();
+                    if (username.includes(searchTerm)) {
+                        row.style.display = 'grid';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
