@@ -21,33 +21,33 @@
             --bronze: #cd7f32;
             --success: #4cc9f0;
         }
-
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
         }
-
+        
         body {
             background-color: #f5f7fa;
             color: var(--dark);
             line-height: 1.6;
         }
-
+        
         .dashboard {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
         }
-
+        
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
         }
-
+        
         .page-title {
             font-size: 2rem;
             font-weight: 600;
@@ -56,43 +56,18 @@
             align-items: center;
             gap: 10px;
         }
-
+        
         .page-title i {
             color: var(--gold);
         }
-
-        .view-options {
-            display: flex;
-            gap: 10px;
-        }
-
-        .view-btn {
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: var(--light);
-            color: var(--gray);
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .view-btn.active {
-            background: var(--primary);
-            color: var(--white);
-        }
-
-        .view-btn:hover {
-            transform: translateY(-2px);
-        }
-
+        
         .leaderboard-container {
             background: var(--white);
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             overflow: hidden;
         }
-
+        
         .leaderboard-header {
             display: grid;
             grid-template-columns: 80px 1fr repeat(4, 150px) 200px;
@@ -104,7 +79,7 @@
             font-size: 0.8rem;
             letter-spacing: 0.5px;
         }
-
+        
         .leaderboard-row {
             display: grid;
             grid-template-columns: 80px 1fr repeat(4, 150px) 200px;
@@ -115,35 +90,16 @@
             animation: fadeIn 0.5s ease-out;
             animation-fill-mode: backwards;
         }
-
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
+        
         .leaderboard-row:hover {
             background: rgba(67, 97, 238, 0.05);
         }
-
-        .leaderboard-row.you {
-            background: rgba(76, 201, 240, 0.1);
-            position: relative;
-        }
-
-        .leaderboard-row.you::before {
-            content: 'YOU';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            background: var(--success);
-            color: var(--white);
-            padding: 2px 8px;
-            border-radius: 0 4px 4px 0;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-
+        
         .rank {
             font-weight: 600;
             font-size: 1.1rem;
@@ -151,22 +107,22 @@
             align-items: center;
             gap: 10px;
         }
-
+        
         .rank-1 .rank-value {
             background: var(--gold);
             color: var(--dark);
         }
-
+        
         .rank-2 .rank-value {
             background: var(--silver);
             color: var(--dark);
         }
-
+        
         .rank-3 .rank-value {
             background: var(--bronze);
             color: var(--white);
         }
-
+        
         .rank-value {
             width: 32px;
             height: 32px;
@@ -176,13 +132,13 @@
             justify-content: center;
             font-weight: 700;
         }
-
+        
         .user-info {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-
+        
         .avatar {
             width: 40px;
             height: 40px;
@@ -195,17 +151,17 @@
             color: var(--primary);
             font-weight: 600;
         }
-
+        
         .username {
             font-weight: 500;
         }
-
+        
         .badges {
             display: flex;
             gap: 6px;
             flex-wrap: wrap;
         }
-
+        
         .badge {
             background: var(--light);
             padding: 4px 10px;
@@ -215,29 +171,29 @@
             align-items: center;
             gap: 4px;
         }
-
+        
         .badge i {
             color: var(--primary);
             font-size: 0.8rem;
         }
-
+        
         .stats {
             font-weight: 500;
         }
-
+        
         .stats-label {
             font-size: 0.7rem;
             color: var(--gray);
             margin-top: 2px;
         }
-
+        
         .podium {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
             margin-bottom: 2rem;
         }
-
+        
         .podium-item {
             text-align: center;
             padding: 1.5rem;
@@ -246,48 +202,48 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
         }
-
+        
         .podium-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-
+        
         .podium-1 {
             order: 2;
             background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
             border-top: 4px solid var(--gold);
         }
-
+        
         .podium-2 {
             order: 1;
             background: linear-gradient(135deg, rgba(192, 192, 192, 0.1), rgba(192, 192, 192, 0.05));
             border-top: 4px solid var(--silver);
         }
-
+        
         .podium-3 {
             order: 3;
             background: linear-gradient(135deg, rgba(205, 127, 50, 0.1), rgba(205, 127, 50, 0.05));
             border-top: 4px solid var(--bronze);
         }
-
+        
         .podium-rank {
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 10px;
         }
-
+        
         .podium-1 .podium-rank {
             color: var(--gold);
         }
-
+        
         .podium-2 .podium-rank {
             color: var(--silver);
         }
-
+        
         .podium-3 .podium-rank {
             color: var(--bronze);
         }
-
+        
         .podium-avatar {
             width: 80px;
             height: 80px;
@@ -296,45 +252,45 @@
             border: 3px solid;
             object-fit: cover;
         }
-
+        
         .podium-1 .podium-avatar {
             border-color: var(--gold);
         }
-
+        
         .podium-2 .podium-avatar {
             border-color: var(--silver);
         }
-
+        
         .podium-3 .podium-avatar {
             border-color: var(--bronze);
         }
-
+        
         .podium-name {
             font-weight: 600;
             margin-bottom: 5px;
         }
-
+        
         .podium-stats {
             display: flex;
             justify-content: center;
             gap: 15px;
             margin-top: 10px;
         }
-
+        
         .podium-stat {
             text-align: center;
         }
-
+        
         .podium-stat-value {
             font-weight: 600;
             color: var(--primary);
         }
-
+        
         .podium-stat-label {
             font-size: 0.7rem;
             color: var(--gray);
         }
-
+        
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -346,79 +302,26 @@
             margin-top: 2rem;
             transition: all 0.3s ease;
         }
-
+        
         .back-btn:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
         }
-
+        
         .back-btn i {
             margin-right: 8px;
         }
-
-        .filter-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            background: var(--white);
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .search-box {
-            position: relative;
-            width: 300px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 10px 15px 10px 40px;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-        }
-
-        .filter-options {
-            display: flex;
-            gap: 10px;
-        }
-
-        .filter-select {
-            padding: 10px 15px;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            background: var(--white);
-            cursor: pointer;
-        }
-
+        
         @media (max-width: 1024px) {
             .podium {
                 grid-template-columns: 1fr;
             }
-
+            
             .leaderboard-header, .leaderboard-row {
                 grid-template-columns: 60px 1fr repeat(2, 100px) 150px;
             }
-
+            
             .leaderboard-header div:nth-child(4),
             .leaderboard-header div:nth-child(5),
             .leaderboard-row div:nth-child(4),
@@ -426,35 +329,16 @@
                 display: none;
             }
         }
-
+        
         @media (max-width: 768px) {
             .dashboard {
                 padding: 1rem;
             }
-
+            
             .header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 1rem;
-            }
-
-            .filter-container {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: flex-start;
-            }
-
-            .search-box {
-                width: 100%;
-            }
-
-            .filter-options {
-                width: 100%;
-                flex-wrap: wrap;
-            }
-
-            .filter-select {
-                flex-grow: 1;
             }
         }
     </style>
@@ -463,13 +347,8 @@
     <div class="dashboard">
         <div class="header">
             <h1 class="page-title"><i class="fas fa-trophy"></i> Leaderboard</h1>
-            <div class="view-options">
-                <button class="view-btn active">All Time</button>
-                <button class="view-btn">This Month</button>
-                <button class="view-btn">This Week</button>
-            </div>
         </div>
-
+        
         {% if leaderboard|length >= 3 %}
         <div class="podium">
             <div class="podium-item podium-1">
@@ -487,7 +366,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <div class="podium-item podium-2">
                 <div class="podium-rank">2</div>
                 <div class="podium-avatar">{{ leaderboard[1].username|first|upper }}</div>
@@ -503,7 +382,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <div class="podium-item podium-3">
                 <div class="podium-rank">3</div>
                 <div class="podium-avatar">{{ leaderboard[2].username|first|upper }}</div>
@@ -521,28 +400,7 @@
             </div>
         </div>
         {% endif %}
-
-        <div class="filter-container">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search users...">
-            </div>
-            <div class="filter-options">
-                <select class="filter-select">
-                    <option>All Exercises</option>
-                    <option>Pushups</option>
-                    <option>Squats</option>
-                    <option>Lunges</option>
-                    <option>Plank</option>
-                </select>
-                <select class="filter-select">
-                    <option>Sort by Reps</option>
-                    <option>Sort by Sessions</option>
-                    <option>Sort by Time</option>
-                </select>
-            </div>
-        </div>
-
+        
         <div class="leaderboard-container">
             <div class="leaderboard-header">
                 <div>Rank</div>
@@ -552,10 +410,9 @@
                 <div>Sessions</div>
                 <div>Badges</div>
             </div>
-
+            
             {% for user in leaderboard %}
-            <div class="leaderboard-row {% if user.username == current_user.username %}you{% endif %}
-                rank-{{ loop.index if loop.index <= 3 else '' }}">
+            <div class="leaderboard-row rank-{{ loop.index if loop.index <= 3 else '' }}">
                 <div class="rank">
                     <div class="rank-value">{{ loop.index }}</div>
                     {% if loop.index == 1 %}
@@ -583,13 +440,18 @@
                     <div class="stats-label">sessions</div>
                 </div>
                 <div class="badges">
-                    {% if user.badges %}
+                    {% if user.badges is iterable and user.badges is not string %}
                         {% for badge in user.badges %}
                             <div class="badge">
                                 <i class="fas fa-award"></i>
                                 {{ badge }}
                             </div>
                         {% endfor %}
+                    {% elif user.badges %}
+                        <div class="badge">
+                            <i class="fas fa-award"></i>
+                            {{ user.badges }}
+                        </div>
                     {% else %}
                         <div class="badge">
                             <i class="fas fa-star"></i>
@@ -600,7 +462,7 @@
             </div>
             {% endfor %}
         </div>
-
+        
         <a href="{{ url_for('profile') }}" class="back-btn">
             <i class="fas fa-arrow-left"></i> Back to Profile
         </a>
@@ -612,32 +474,6 @@
             const rows = document.querySelectorAll('.leaderboard-row');
             rows.forEach((row, index) => {
                 row.style.animationDelay = `${index * 0.05}s`;
-            });
-
-            // View option buttons
-            const viewBtns = document.querySelectorAll('.view-btn');
-            viewBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    viewBtns.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    // Here you would typically fetch new data based on the selected view
-                });
-            });
-
-            // Search functionality
-            const searchInput = document.querySelector('.search-box input');
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                const rows = document.querySelectorAll('.leaderboard-row');
-
-                rows.forEach(row => {
-                    const username = row.querySelector('.username').textContent.toLowerCase();
-                    if (username.includes(searchTerm)) {
-                        row.style.display = 'grid';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
             });
         });
     </script>
