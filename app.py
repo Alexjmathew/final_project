@@ -8,9 +8,21 @@ import firebase_admin
 from firebase_admin import credentials, firestore, auth
 import pandas as pd
 import io
+from werkzeug.security import generate_password_hash, check_password_hash
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Replace with a secure key in production
+app.secret_key = os.getenv('SECRET_KEY', 'fallback-secret-key-change-in-production')
+
+# Security configurations
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+app.config['PERMANENT_SESSION_LIFETIME'] = 3600000  # 1 hour session timeout
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 # Initialize Firebase
 cred = credentials.Certificate('firebase.json')
@@ -90,6 +102,23 @@ def update_badges(user_ref, count, total_time):
     if any(s['count'] >= 50 for s in sessions) and "Marathoner" not in badges:
         badges.append("Marathoner")
     user_ref.update({"badges": badges})
+
+# Anonymize user data for GDPR Right to Erasure
+def anonymize_user_data(user_ref):
+    anonymized_data = {
+        "username": "Deleted User",
+        "email": f"deleted_{user_ref.id}@anonymous.com",
+        "password": "anonymous",
+        "age": 0,
+        "height": 0,
+        "weight": 0,
+        "blood_group": "Unknown",
+        "sessions": [],
+        "badges": [],
+        "is_anonymized": True,
+        "anonymized_at": datetime.now().isoformat()
+    }
+    user_ref.update(anonymized_data)
 
 # Generate video frames
 def generate_frames():
@@ -203,7 +232,12 @@ def login():
             user = auth.get_user_by_email(email)
             user_ref = db.collection('users').document(email)
             user_data = user_ref.get().to_dict()
-            if user_data and user_data['password'] == password:
+            
+            # Check if user is anonymized
+            if user_data and user_data.get('is_anonymized'):
+                return render_template('login.html', error="Account not found")
+                
+            if user_data and check_password_hash(user_data['password'], password):
                 session['email'] = email
                 session['username'] = user_data['username']
                 return redirect(url_for('profile'))
@@ -256,22 +290,38 @@ def register():
         height = request.form['height']
         weight = request.form['weight']
         blood_group = request.form['blood_group']
+        privacy_consent = 'privacy_consent' in request.form
+        data_processing_consent = 'data_processing_consent' in request.form
+        
+        # Validate consent
+        if not privacy_consent or not data_processing_consent:
+            return render_template('register.html', error="You must accept privacy policy and data processing terms")
+        
         email_query = db.collection('users').where('email', '==', email).limit(1)
         if list(email_query.stream()):
             return render_template('register.html', error="Email already registered")
         try:
             auth.create_user(email=email, password=password)
             user_ref = db.collection('users').document(email)
+            
+            # Hash password before storing
+            hashed_password = generate_password_hash(password)
+            
             user_data = {
                 "username": username,
                 "email": email,
-                "password": password,
+                "password": hashed_password,  # Store hashed password
                 "age": age,
                 "height": height,
                 "weight": weight,
                 "blood_group": blood_group,
                 "sessions": [],
-                "badges": []
+                "badges": [],
+                "privacy_consent": privacy_consent,
+                "data_processing_consent": data_processing_consent,
+                "consent_date": datetime.now().isoformat(),
+                "created_at": datetime.now().isoformat(),
+                "is_anonymized": False
             }
             user_ref.set(user_data)
             session['email'] = email
@@ -290,6 +340,12 @@ def profile():
     if not user.exists:
         return redirect(url_for('login'))
     user_data = user.to_dict()
+    
+    # Check if user is anonymized
+    if user_data.get('is_anonymized'):
+        session.clear()
+        return redirect(url_for('login'))
+        
     sessions = user_data.get('sessions', [])
     session_dates = [session['date'] for session in sessions]
     session_counts = [session['count'] for session in sessions]
@@ -329,6 +385,100 @@ def edit_profile():
         session['username'] = username
         return redirect(url_for('profile'))
     return render_template('edit_profile.html', user=user)
+
+# GDPR Routes
+@app.route('/privacy_policy')
+def privacy_policy():
+    return render_template('privacy_policy.html')
+
+@app.route('/data_export')
+def data_export():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    
+    user_ref = db.collection('users').document(session['email'])
+    user_data = user_ref.get().to_dict()
+    
+    if user_data.get('is_anonymized'):
+        return redirect(url_for('login'))
+    
+    # Create comprehensive data export
+    export_data = {
+        'personal_info': {
+            'username': user_data.get('username'),
+            'email': user_data.get('email'),
+            'age': user_data.get('age'),
+            'height': user_data.get('height'),
+            'weight': user_data.get('weight'),
+            'blood_group': user_data.get('blood_group'),
+            'created_at': user_data.get('created_at'),
+            'consent_date': user_data.get('consent_date')
+        },
+        'fitness_data': {
+            'sessions': user_data.get('sessions', []),
+            'badges': user_data.get('badges', [])
+        },
+        'consent_settings': {
+            'privacy_consent': user_data.get('privacy_consent'),
+            'data_processing_consent': user_data.get('data_processing_consent')
+        }
+    }
+    
+    # Convert to JSON file
+    output = io.StringIO()
+    pd.json_normalize(export_data).to_json(output, orient='records', indent=2)
+    output.seek(0)
+    
+    return send_file(
+        io.BytesIO(output.getvalue().encode('utf-8')),
+        mimetype='application/json',
+        as_attachment=True,
+        download_name=f'fitness_data_export_{datetime.now().strftime("%Y%m%d")}.json'
+    )
+
+@app.route('/delete_account', methods=['GET', 'POST'])
+def delete_account():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        confirmation = request.form.get('confirmation')
+        if confirmation == 'DELETE':
+            user_ref = db.collection('users').document(session['email'])
+            
+            # Anonymize user data instead of complete deletion
+            anonymize_user_data(user_ref)
+            
+            # Clear session
+            session.clear()
+            
+            return render_template('delete_confirmation.html')
+        
+        return render_template('delete_account.html', error="Please type DELETE to confirm")
+    
+    return render_template('delete_account.html')
+
+@app.route('/consent_management', methods=['GET', 'POST'])
+def consent_management():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    
+    user_ref = db.collection('users').document(session['email'])
+    user_data = user_ref.get().to_dict()
+    
+    if request.method == 'POST':
+        privacy_consent = 'privacy_consent' in request.form
+        data_processing_consent = 'data_processing_consent' in request.form
+        
+        user_ref.update({
+            "privacy_consent": privacy_consent,
+            "data_processing_consent": data_processing_consent,
+            "consent_updated_at": datetime.now().isoformat()
+        })
+        
+        return redirect(url_for('profile'))
+    
+    return render_template('consent_management.html', user=user_data)
 
 @app.route('/manual_log', methods=['GET', 'POST'])
 def manual_log():
@@ -485,6 +635,9 @@ def leaderboard():
     users = [user.to_dict() for user in db.collection('users').stream()]
     leaderboard_data = []
     for user in users:
+        # Skip anonymized users from leaderboard
+        if user.get('is_anonymized'):
+            continue
         sessions = user.get('sessions', [])
         total_reps = sum(s['count'] for s in sessions)
         total_time = sum(s['total_time'] for s in sessions)
